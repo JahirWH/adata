@@ -386,7 +386,7 @@ def ExisteCodi(codi):
 
 def VerInventario():
     #df.write_csv("Inventario.csv")
-    df_csv = pl.read_csv("Inventario.csv")
+    df_csv = pl.read_csv("https://mega.nz/file/4Y8jDI7a#96-EG90MU6kr2StQxwU-GCgho667KSyz3XZrpC3kTA0")
     print(df_csv)
         
 
