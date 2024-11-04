@@ -10,19 +10,22 @@ from datetime import datetime
 from cryptography.fernet import Fernet
 from colorama import init,Fore,Back,Style
 from time import sleep
+import time
 import os.path as path
+
 
 
 init()                         
                             #Agregar que se pueda guardar la contrasena temporalmente
                             #Agrega buscador online de archivos 
-                            #ADATA 2.4 correcocion de mejoras pequenas
+                            #ADATA 2.9 correcocion de mejoras pequenas
                             #Vercion mejorada con polars correccion de errror de encryptacion 
                             #Agrege colores y auto eliminacion de datos
                             #Agregacion de syncronizacion de archivos y bases de datos
                             #Verificacion de archivos desencryptado para modificar o agregar
 
 today = str(date.today())
+time_tiempo = 6.2
 
 def loadbar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='>'):
     percent = ('{0:.' + str(decimals) + 'f}').format(100 * (iteration/float(total)))
@@ -124,11 +127,6 @@ def actualizacion_sesion():
     archivo_estado.close()
 
 
-
-
-
-
-
 #Generador de passwords 
 def Generate_pas():
 
@@ -151,7 +149,19 @@ def Eliminacion():
     print(Fore.RED+"Archivo eliminado"+Fore.RESET)
     validate()
 
-    
+def estado_key():
+    #Convercion al leer el estado solo validacion, no agrega o modifica el estado
+    le = open('estado.txt')
+    estado=le.read()
+    if estado =="encrypted":
+        print("archivo ya esta encryptado!!! ")
+        #validate()
+    elif estado== "decrypted":
+        encrypted_simple()
+        return
+    else: 
+        print("Error en algo") 
+
     #generar un archivo extra donde diga si el archivo esta encryptado si lo esta no no encryptara dos veces
 def estado():
     #Convercion al leer el estado solo validacion, no agrega o modifica el estado
@@ -170,7 +180,7 @@ def estado_salida():
     les = open('estado.txt')
     estado_salir=les.read()
     if estado_salir== "decrypted":
-        encrypted_simple()
+        encrypted()
         return
 
 
@@ -214,7 +224,7 @@ def genera_clave():
 
         #Elecion si quiero que se desencrypte con llave interna o externa
 
-def encrypted():
+def encrypted_simple():
             print('Quiere encryptarlo con una llave externa?')
             jk = input('Y/N : ')
 
@@ -265,7 +275,7 @@ def encrypted():
                 actualizacion_estado()
                 print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
 
-def encrypted_simple():
+def encrypted():
         key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
             #key = Fernet.generate_key()
             #archivo = open('key.key', 'rb')
@@ -296,8 +306,24 @@ def encrypted_simple():
 
     #print(Fore.BLUE + Style.BRIGHT+"Archivo desencryptado con exito!"+Style.RESET_ALL)
     #return
-
 def decrypted():
+
+        key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
+        fernet = Fernet(key) 
+
+        enc_file= open('Inventario.csv', 'rb') 
+        encrypted = enc_file.read() 
+
+        decrypted = fernet.decrypt(encrypted)
+
+        dec_file= open('Inventario.csv', 'wb')
+        dec_file.write(decrypted)
+        actualizacion_estado_dos()
+        print(Fore.BLUE + Style.BRIGHT+"El archivo se desencrypto "+Style.RESET_ALL)
+
+
+
+def decrypted_key():
 
     print(Fore.BLUE + Style.BRIGHT+"Tiene llave de encryptacion escrita? "+Style.RESET_ALL)
     pregunta= input('Y/N:')
@@ -352,12 +378,11 @@ def decrypted_sub():
 def menu():
 
     #print("******MENU INVENTARIO******")
-    print("1--- Ver  " , "                  2--- Agregar " )
-    print("3--- Modificar ",    "           4--- Buscar")
-    print("5--- Encryptar base de datos", " 6--- Desencryptar")
-    print("7--- Generar password",   "      8---Generar clave de encryptacion")
-    print("9--- Tarjetas")
-    print("D--- limpiar")
+    print("1--- Ver   ","                   2--- Agregar " )
+    print("3--- Modificar ","               4--- Buscar")
+    print("5--- Encryptar      ","          6--- Desencryptar")
+    print("7--- Generar password","         8--- Genera_key_encrypt")
+    print("9--- Decryp_con_key","           10---Encryp_externa")
     print(Fore.RED+"eliminartodo"+Fore.RESET)
 
 
@@ -375,168 +400,17 @@ def Existename(service):
                 return row
         return "No existe name"
 
-def ExisteCodi(codi):
-    with open('tar.csv')as File:
-        reader=csv.DictReader(File)
-        for row in reader:
-            if(codi==row['codi']):
-                return row
-        return "No existe"
 
 
 def VerInventario():
     #df.write_csv("Inventario.csv")
-    df_csv = pl.read_csv("https://mega.nz/file/4Y8jDI7a#96-EG90MU6kr2StQxwU-GCgho667KSyz3XZrpC3kTA0")
+    #r = requests.get('https://drive.google.com/file/d/1GfJ_WkVaRnBDGag1rmP_WKHq8fNMULwG/view?usp=sharing')
+    #r = requests.get('https://drive.google.com/file/d/1GfJ_WkVaRnBDGag1rmP_WKHq8fNMULwG/view?usp=drive_open')
+    df_csv = pl.read_csv("Inventario.csv")
     print(df_csv)
+
+
         
-
-
-
-
-def ver_tarjetas():
-        verifica = getpass.getpass('Ingrese su password:')
-
-        if verifica == 'otis':
-            
-
-            archivo = pl.read_csv("tar.csv")
-            print(archivo)
-
-            #Ver el archivo desencryptado
-            
-
-            
-            c = 12
-            k = 2
-            if c > k:
-                print('1--- Agregar una nueva tarjeta','2--- Modificar una tarjeta')
-                print('3--- Encryptarla ', '4---Desencryptarla')
-                has = input('Opcion: ')
-
-                if has == '1':
-                    tarjeta_nueva()
-                elif has == '2':
-                    Modificar_tarjeta()
-                elif has == '3':
-                    key = 'yruCR1G0eRi7s4dJGHd39QV1ovFAhpBFA4DrRwe5jkU='
-                  
-                    fernet = Fernet(key) 
-                      
-                    file=open('tar.csv', 'rb') 
-                    original = file.read() 
-                          
-                    encrypted = fernet.encrypt(original) 
-
-                    file=open('tar.csv', 'rb') 
-                    original = file.read()
-
-                      
-                    encrypted_file= open('tar.csv', 'wb') 
-                    encrypted_file.write(encrypted)
-                    print('Encryptado')
-                elif has == '4':
-                    key= 'yruCR1G0eRi7s4dJGHd39QV1ovFAhpBFA4DrRwe5jkU='
-            #key = Fernet.generate_key()
-              
-                    fernet = Fernet(key) 
-              
-                    with open('tar.csv', 'rb') as enc_file: 
-                        encrypted = enc_file.read() 
-              
-                    decrypted = fernet.decrypt(encrypted)
-            
-              
-                    with open('tar.csv', 'wb') as dec_file:
-                        dec_file.write(decrypted) 
-                    print('Desencryptado')
-                else:
-                    print('Error no se selecciono ninguna opcion')
-           
-
-            
-
-        else:
-            print('Parece que esta no es tu contraseña')
-                 
-
-def tarjeta_nueva():
-    
-    #Agrega el archivo aqui
-
-    from random import randint
-    lista = []
-    for x in range(2):
-        lista.append(str(randint(0,99)))
-        #lista.append(str(a)) #Estas 2 líneas se pueden juntar en: lista.append(str(randint(0,9)))
-        codi = ''
-        for x in range(2):
-            codi = codi + lista[x]
-            codigo_in = int(codi)
-
-            today = str(date.today())
-
-    if ExisteCodi(codi)=="No existe":
-                tarjeta=input('Nombre de la tarjeta: ')
-                Numero=input('Numero de tarjeta: ')
-                titular=input('Titular: ')
-                fechatar=input('Fecha expiracion')
-                codigo3=input('Codigo : ')
-                fecha=today
-
-
-                with open ('tar.csv','a')as File:
-                    File.write('\n'+codi+','+tarjeta+','+Numero+','
-                        +titular+','+fechatar+','+codigo3+','+fecha)
-
-     #Vuelve a encryptar cuando se ejecuta la funcion
-            
-
-
-
-
-
-    else:
-        print(Fore.RED+"****Error el codigo ya existe****"+Fore.RESET)
-    
-
-
-def Modificar_tarjeta():
-            codi=input('Ingrese codigo modificar: ')
-            if ExisteCodi(codi)=="No existe":
-                print('----Error el codigo que desea modificar no existe----')
-            else:
-                tarjeta=input('Nombre de la tarjeta: ')
-                Numero=input('Numero de tarjeta: ')
-                titular=input('Titular: ')
-                fechatar=input('Fecha expiracion')
-                codigo3=input('Codigo : ')
-                fecha=today
-                modificar_tar(codi,tarjeta,Numero,titular,fechatar,codigo3,fecha)
-
-
-def modificar_tar(codi,tarjeta,Numero,titular,fechatar,codigo3,fecha):
-    result=[]
-    with open('tar.csv')as File:
-        reader=csv.DictReader(File)
-        for row in reader:
-            #Compara el codigo hasta encontrar lugar vacio
-            if row['codi']==codi:
-                row['codi']=codi
-                row['tarjeta']=tarjeta
-                row['Numero']=Numero
-                row['titular']=titular
-                row['fechatar']=fechatar
-                row['codigo3']=codigo3
-                row['fecha']=fecha
-
-                result.append(row)
-
-        with open('tar.csv','w')as File:
-            fieldnames=['codi','tarjeta','Numero','titular','fechatar','codigo3','fecha']
-            writer=csv.DictWriter(File,fieldnames=fieldnames,extrasaction='ignore')
-            writer.writeheader()
-            writer.writerows(result)
-
 
 #Modificacion del inventario
 def ProductoNuevo():
@@ -563,11 +437,11 @@ def ProductoNuevo():
 
             
         if ExisteCodigo(codigo)=="No existe":
-            ubicacion=input(' Service: ')
+            ubicacion=input('Servicio: ')
             descripcion=input('Email: ')
             unidad=input('Password: ')
-            tipo=input(' Username: ')
-            familia=input('Web: ')
+            tipo=input('Usuario: ')
+            familia=input('Referencia: ')
             fecha=today
 
 
@@ -576,6 +450,7 @@ def ProductoNuevo():
                 +unidad+','+tipo+','+familia+','+fecha)
         else:
             print("****Error el codigo ya existe****")
+
 def ModificarProducto():
     ver= open('estado.txt','r')
     var=ver.read()
@@ -587,7 +462,7 @@ def ModificarProducto():
         service=input('Ingrese servicio a modificar: ')
         #if ExisteCodigo(codigo)=="No existe":
          #   print('----Error el codigo que desea modificar no existe----')
-        if Existename(service)=="No existe name":
+        if  Existename(service)=="No existe name":
              print('----Error el Nombre que desea modificar no existe----')
         else:
             df=pl.read_csv('Inventario.csv')
@@ -604,6 +479,7 @@ def ModificarProducto():
             familia=input(' Web: ')
             fecha=today
             modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha)
+
 
 
 
@@ -643,6 +519,7 @@ def ExisteCodigo(codigo):
 def BuscarPorNombre():
     ver= open('estado.txt','r')
     var=ver.read()
+    
 
     if var == 'encrypted':
         print(Fore.RED+"Primero debe desencriptar el archivo!!"+Fore.RESET)
@@ -658,20 +535,17 @@ def BuscarPorNombre():
         print(df.filter(df['username'].str.contains(palabra)))
         #print(Fore.YELLOW+"webs con la palabra   "+Fore.RESET+ (palabra))
         print(df.filter(df['web'].str.contains(palabra)))
+       
 
-
-
-
-
-
-
-
+def pausa():
+    input('Intro para continuar :')
 #soluconar logica para encryptarb sin que se vuelva un bucle
 
 def main():
-    
+
+    validate()
     while True:
-        validate()
+        pausa()
         show()
         option=menu()
         if option == '1':
@@ -690,12 +564,12 @@ def main():
             Generate_pas()
         elif option == '8':
             genera_clave()
-        elif option== '9':
-            ver_tarjetas()
+        elif option == '9':
+            decrypted_key()
         elif option == 'eliminartodo':
             Eliminacion()
-        elif option == 'D' or option == 'd':
-            clearConsole()
+        elif option == '10':
+            estado_key()
         elif option == 'exit' or 'salir':
             estado_salida()
             print("SALIENDO....")
