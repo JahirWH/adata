@@ -10,22 +10,21 @@ from datetime import datetime
 from cryptography.fernet import Fernet
 from colorama import init,Fore,Back,Style
 from time import sleep
-import time
 import os.path as path
 
 
 
 init()                         
-                            #Agregar que se pueda guardar la contrasena temporalmente
-                            #Agrega buscador online de archivos 
+                            #LISTO #Agregar que se pueda guardar la contrasena temporalmente
+                            #PENDIENTE Agrega buscador online de archivos 
                             #ADATA 2.9 correcocion de mejoras pequenas
-                            #Vercion mejorada con polars correccion de errror de encryptacion 
-                            #Agrege colores y auto eliminacion de datos
-                            #Agregacion de syncronizacion de archivos y bases de datos
-                            #Verificacion de archivos desencryptado para modificar o agregar
+                            #LISTO Vercion mejorada con polars correccion de errror de encryptacion 
+                            #LISTO Agrege colores y auto eliminacion de datos
+                            #PENDIENTE Agregacion de syncronizacion de archivos y bases de datos
+                            #LISTO Verificacion de archivos desencryptado para modificar o agregar
 
 today = str(date.today())
-time_tiempo = 6.2
+#time_tiempo = 6.2
 
 def loadbar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='>'):
     percent = ('{0:.' + str(decimals) + 'f}').format(100 * (iteration/float(total)))
@@ -42,6 +41,7 @@ loadbar(0, l, prefix='Progress:', suffix='Complete', length=l)
 for i, item in enumerate(items):
         sleep(0.01)
         loadbar(i + 1, l, prefix='Progress:', suffix='Complete', length=l)
+
 
 def clearConsole():
         command = 'clear'
@@ -106,7 +106,9 @@ def inicio_sesion():
         print('Ultima modificacion  : '+ Fore.GREEN + ver +Style.RESET_ALL)
         tem = open('temp.txt','r')
         ver=tem.read()
-        print('Contrasena temporal  : '+ Fore.GREEN + ver +Style.RESET_ALL)
+        print('Contrasena temporal  : '+ Fore.BLUE + Style.BRIGHT+ver+Style.RESET_ALL)
+            
+
       
 
 def archivo_estado():
@@ -572,6 +574,7 @@ def main():
             estado_key()
         elif option == 'exit' or 'salir':
             estado_salida()
+            clearConsole()
             print("SALIENDO....")
             break
      
