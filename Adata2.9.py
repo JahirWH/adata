@@ -11,6 +11,7 @@ from cryptography.fernet import Fernet
 from colorama import init,Fore,Back,Style
 from time import sleep
 import os.path as path
+import time
 
 
 
@@ -24,7 +25,7 @@ init()
                             #LISTO Verificacion de archivos desencryptado para modificar o agregar
 
 today = str(date.today())
-#time_tiempo = 6.2
+time_tiempo = 6.2
 
 def loadbar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='>'):
     percent = ('{0:.' + str(decimals) + 'f}').format(100 * (iteration/float(total)))
@@ -159,7 +160,7 @@ def estado_key():
         print("archivo ya esta encryptado!!! ")
         #validate()
     elif estado== "decrypted":
-        encrypted_simple()
+        encrypted_with_key()
         return
     else: 
         print("Error en algo") 
@@ -226,13 +227,14 @@ def genera_clave():
 
         #Elecion si quiero que se desencrypte con llave interna o externa
 
-def encrypted_simple():
-            print('Quiere encryptarlo con una llave externa?')
-            jk = input('Y/N : ')
-
-            if jk == 'Y' or jk == 'y':
-                key = input('Ingrese llave para encryptarlo: ')
+def encrypted_with_key():
+                
+                digitos = input('Ingrese 4 digitos que recuerde : ')
+                key_agregada = 'a-TE3Yjp6Obuovey30I'+ digitos +'HjiMnQ1BI6UnFh48uYaE='
+                print(Fore.RED+ 'Si los olvida no podra recuperar el archivo'+Fore.RESET)
+                key = key_agregada
                 print("La clave es:")
+                time.sleep(2)
                 print(key)  
 
                 fernet = Fernet(key) 
@@ -245,39 +247,14 @@ def encrypted_simple():
                 file=open('Inventario.csv', 'rb') 
                 original = file.read()
 
-
                 encrypted_file= open('Inventario.csv', 'wb') 
                 encrypted_file.write(encrypted)
-
                 actualizacion_estado()
                 print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
 
-            else:
-                key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
-            #key = Fernet.generate_key()
-            #archivo = open('key.key', 'rb')
-            #key=archivo.read()
-
-                #with open('key.txt', 'wb') as filekey:
-                 #  filekey.write(key)
-
-                fernet = Fernet(key)     
-                file=open('Inventario.csv', 'rb') 
-                original = file.read() 
-
-                encrypted = fernet.encrypt(original) 
-
-                file=open('Inventario.csv', 'rb') 
-                original = file.read()
-
-
-                encrypted_file= open('Inventario.csv', 'wb') 
-                encrypted_file.write(encrypted)
-
-                actualizacion_estado()
-                print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
-
+          
 def encrypted():
+
         key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
             #key = Fernet.generate_key()
             #archivo = open('key.key', 'rb')
@@ -308,7 +285,7 @@ def encrypted():
 
     #print(Fore.BLUE + Style.BRIGHT+"Archivo desencryptado con exito!"+Style.RESET_ALL)
     #return
-def decrypted():
+def decrypted():    
 
         key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
         fernet = Fernet(key) 
@@ -321,22 +298,23 @@ def decrypted():
         dec_file= open('Inventario.csv', 'wb')
         dec_file.write(decrypted)
         actualizacion_estado_dos()
+        time.sleep(0.5)
         print(Fore.BLUE + Style.BRIGHT+"El archivo se desencrypto "+Style.RESET_ALL)
 
 
 
 def decrypted_key():
 
-    print(Fore.BLUE + Style.BRIGHT+"Tiene llave de encryptacion escrita? "+Style.RESET_ALL)
-    pregunta= input('Y/N:')
-
-    if pregunta == 'N' or pregunta == 'n':
-        #print("Buscaremos la llave en los archivos")
-        #print()
-        #filekey= open('key.key', 'rb')  
+  
+        pregunta= input(Fore.RED + Style.BRIGHT+"Ingrese sus 4 digitos: "+Style.RESET_ALL)
+        print(Fore.RED+ "AVISO" +Fore.RESET)
+        time.sleep(1)
+        print('Si ingresa los codigos incorrectamente el archivo no se vera desencryptado')
+        time.sleep(2)  
         
-        #key = filekey.read()
-        key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
+
+        key_de_digitos = 'a-TE3Yjp6Obuovey30I' + pregunta + 'HjiMnQ1BI6UnFh48uYaE= '
+        key = key_de_digitos
         fernet = Fernet(key) 
 
         enc_file= open('Inventario.csv', 'rb') 
@@ -347,35 +325,8 @@ def decrypted_key():
         dec_file= open('Inventario.csv', 'wb')
         dec_file.write(decrypted)
         actualizacion_estado_dos()
-        print(Fore.BLUE + Style.BRIGHT+"Encotramos la llave, el archivo se desencrypto "+Style.RESET_ALL)
+        print(Fore.YELLOW +"Archivo desencryptado"+Fore.RESET)
 
-
-    elif pregunta== 'Y' or pregunta == 'y':
-        decrypted_sub()
-
-    else:
-        print("Respuesta invalida, Escriba Y o N")
-
-
-def decrypted_sub():
-
-    #Este hace otra clave de encrytacion diferente
-    #key = Fernet.generate_key()
-
-    key= input(Fore.BLUE + Style.BRIGHT+"Ingrese la clave de desencrytacion: "+Style.RESET_ALL) 
-
-
-    fernet = Fernet(key) 
-
-    enc_file= open('Inventario.csv', 'rb') 
-    encrypted = enc_file.read() 
-
-    decrypted = fernet.decrypt(encrypted)
-
-    dec_file= open('Inventario.csv', 'wb')
-    dec_file.write(decrypted) 
-    actualizacion_estado_dos()
-    print(Fore.BLUE + Style.BRIGHT+"El archivo se desencrypto con exito "+Style.RESET_ALL)
 
 def menu():
 
@@ -577,6 +528,8 @@ def main():
             clearConsole()
             print("SALIENDO....")
             break
+        else:
+            print('opcion invalida')
      
 
 main()
