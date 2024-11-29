@@ -83,7 +83,7 @@ def validate():
 
         password = getpass.getpass("Introduce tu contraseña: ")
 
-        if password =="2009":
+        if password =="1234":
             break
 
         elif password =="exit" or password == "salir":
@@ -93,7 +93,7 @@ def validate():
             #error=="Generado"
             
 
-        elif password !="2009!":
+        elif password !="1234!":
             clearConsole()
             print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
             print("├─┘├─┤└─┐└─┐││││ │├┬┘ ││   │││││  │ │├┬┘├┬┘├┤ │   │ ")  
@@ -356,9 +356,6 @@ def Existename(service):
 
 
 def VerInventario():
-    #df.write_csv("Inventario.csv")
-    #r = requests.get('https://drive.google.com/file/d/1GfJ_WkVaRnBDGag1rmP_WKHq8fNMULwG/view?usp=sharing')
-    #r = requests.get('https://drive.google.com/file/d/1GfJ_WkVaRnBDGag1rmP_WKHq8fNMULwG/view?usp=drive_open')
     df_csv = pl.read_csv("Inventario.csv")
     print(df_csv)
 
