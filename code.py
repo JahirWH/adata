@@ -12,9 +12,7 @@ from colorama import init,Fore,Back,Style
 from time import sleep
 import os.path as path
 import time
-import bcrypt
-import base64
-import hashlib
+
 
 
 init()                         
@@ -230,30 +228,31 @@ def genera_clave():
         #Elecion si quiero que se desencrypte con llave interna o externa
 
 def encrypted_with_key():
-    secreto = "MiSoftwareV1.0"  # Puede ser cualquier identificador único
-    identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
-    clave_base = secreto + identificador  
+                
+                digitos = input('Ingrese 4 digitos que recuerde : ')
+                key_agregada = 'a-TE3Yjp6Obuovey30I'+ digitos +'HjiMnQ1BI6UnFh48uYaE='
+                print(Fore.RED+ 'Si los olvida no podra recuperar el archivo'+Fore.RESET)
+                key = key_agregada
+                print("La clave es:")
+                time.sleep(2)
+                print(key)  
 
-    # Crear un hash SHA256 de la clave base
-    clave_hash = hashlib.sha256(clave_base.encode()).digest()
+                fernet = Fernet(key) 
 
-    # Tomar los primeros 32 bytes y codificarlos en base64 para Fernet
-    clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+                file=open('Inventario.csv', 'rb') 
+                original = file.read() 
 
-    # Mostrar la clave generada
-    print("Clave generada:", clave_final.decode())
-    return clave_final
+                encrypted = fernet.encrypt(original) 
 
-    with open('Inventario.csv', "rb") as archivo:
-        datos = archivo.read()
-    
-    f = Fernet(clave_final)
-    datos_cifrados = f.encrypt(datos)
-    
-    with open('Inventario.csv', "wb") as archivo:
-        archivo.write(datos_cifrados)
+                file=open('Inventario.csv', 'rb') 
+                original = file.read()
 
-# 🔹
+                encrypted_file= open('Inventario.csv', 'wb') 
+                encrypted_file.write(encrypted)
+                actualizacion_estado()
+                print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
+
+          
 def encrypted():
 
         key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
@@ -457,7 +456,7 @@ def modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha):
         writer.writeheader()
         writer.writerows(result)
         actualizacion_sesion()
-       	print(f"EL {ubicacion} CON {descripcion} SE AGREGÓ CORRECTAMENTE")
+        print(f"EL {ubicacion} CON {descripcion} SE AGREGÓ CORRECTAMENTE")
 
 
 def ExisteCodigo(codigo):
@@ -534,14 +533,14 @@ def main():
             estado_key()
             pausa()
         elif option == 'exit' or 'salir':
-	        estado_salida()
-	        clearConsole()
-	        print("Encryptando automaticamente ...")
-	        time.sleep(1)
-	        clearConsole()
-	        print("SALIENDO....!")
-	        time.sleep(1)
-	        break
+            estado_salida()
+            clearConsole()
+            print("Encryptando automaticamente ...")
+            time.sleep(1)
+            clearConsole()
+            print("SALIENDO....!")
+            time.sleep(1)
+            break
         else:
             print('opcion invalida')
      
