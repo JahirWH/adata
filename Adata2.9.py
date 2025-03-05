@@ -216,14 +216,24 @@ def genera_clave():
                     print("Desea generar una nueva clave de encryptacion")
                     save=input("Y/N :")
                     if save== 'Y' or save== 'y':
-                        print("La clave se guardara en el directorio con el nombre: key.key")
-                        print(Fore.RED+"La nueva clave de encryptacion es \n"+Fore.RESET)
-                        key = Fernet.generate_key()
-                        print(key)
-                        archivo = open('key.key','wb')
-                        archivo.write(key)
-                        archivo.close()
-                        print(Fore.BLUE+"La clave se a guardado con exito"+Fore.RESET)
+                    	secreto = input('Pon tu usuario o clabe secreta')  # Puede ser cualquier identificador único
+                    	identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
+                    	clave_base = secreto + identificador  
+                    	clave_hash = hashlib.sha256(clave_base.encode()).digest()
+                    	clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+                    	print(Fore.RED+"La nueva clave de encryptacion es \n"+Fore.RESET)
+                    	print("Clave generada:", clave_final.decode())
+                    	time.sleep(4)
+                    	clearConsole()
+                    	print("La clave se guardara en el directorio con el nombre: Clave.txt")
+                    	time.sleep(3)
+                    	clearConsole()
+                    	archivo = open('clave.txt','wb')
+                    	archivo.write(clave_final)
+                    	archivo.close()
+
+                    	print(Fore.BLUE+"La clave se a guardado con exito"+Fore.RESET)
+                    	time.sleep(3)
                     else:
                         print("SALIENDO...")
 
@@ -233,28 +243,23 @@ def encrypted_with_key():
     secreto = "MiSoftwareV1.0"  # Puede ser cualquier identificador único
     identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
     clave_base = secreto + identificador  
-
     # Crear un hash SHA256 de la clave base
     clave_hash = hashlib.sha256(clave_base.encode()).digest()
-
     # Tomar los primeros 32 bytes y codificarlos en base64 para Fernet
     clave_final = base64.urlsafe_b64encode(clave_hash[:32])
-
     # Mostrar la clave generada
     print("Clave generada:", clave_final.decode())
-    return clave_final
-
-    with open('Inventario.csv', "rb") as archivo:
-        datos = archivo.read()
-    
+    archivo =open('Inventario.csv','rb')
+    datos = archivo.read()
     f = Fernet(clave_final)
     datos_cifrados = f.encrypt(datos)
-    
-    with open('Inventario.csv', "wb") as archivo:
-        archivo.write(datos_cifrados)
+    encrypted_file= open('Inventario.csv', 'wb') 
+    encrypted_file.write(datos_cifrados)
+    print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
+    actualizacion_estado()
 
-# 🔹
 def encrypted():
+
 
         key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
             #key = Fernet.generate_key()
@@ -264,6 +269,21 @@ def encrypted():
                 #with open('key.txt', 'wb') as filekey:
                  #  filekey.write(key)
 
+        identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
+        clave_base = secreto + identificador  
+
+    # Crear un hash SHA256 de la clave base
+        clave_hash = hashlib.sha256(clave_base.encode()).digest()
+
+    # Tomar los primeros 32 bytes y codificarlos en base64 para Fernet
+        clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+
+    # Mostrar la clave generada
+        print("Clave generada:", clave_final.decode())
+
+        archivo =open('Inventario.csv','rb')
+        datos = archivo.read()
+   
         fernet = Fernet(key)     
         file=open('Inventario.csv', 'rb') 
         original = file.read() 
@@ -278,13 +298,14 @@ def encrypted():
         encrypted_file.write(encrypted)
 
         actualizacion_estado()
-        print(Fore.RED+"archivo encryptado "+Fore.RESET)
+        # print(Fore.RED+"archivo encryptado "+Fore.RESET)
+        print(Fore.BLUE + Style.BRIGHT+"Archivo encryptado con exito!"+Style.RESET_ALL)
+
 
 
 #desencrptacion automatica al introducior la contraseña correcta
 
 
-    #print(Fore.BLUE + Style.BRIGHT+"Archivo desencryptado con exito!"+Style.RESET_ALL)
     #return
 def decrypted():    
 
@@ -307,26 +328,34 @@ def decrypted():
 def decrypted_key():
 
   
-        pregunta= input(Fore.RED + Style.BRIGHT+"Ingrese sus 4 digitos: "+Style.RESET_ALL)
-        print(Fore.RED+ "AVISO" +Fore.RESET)
-        time.sleep(1)
-        print('Si ingresa los codigos incorrectamente el archivo no se vera desencryptado')
-        time.sleep(2)  
+    secreto = "MiSoftwareV1.0"
+    identificador = input('Pon los mismos 4 números: ')
+
+    if not identificador.isdigit() or len(identificador) != 4:
+        print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos numéricos." + Fore.RESET)
+        return
+
+    clave_base = secreto + identificador  
+
+    # Crear un hash SHA256 y codificarlo para Fernet
+    clave_hash = hashlib.sha256(clave_base.encode()).digest()
+    clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+
+    try:
+        # Leer archivo y desencriptar
+        with open('Inventario.csv', 'rb') as archivo:
+            datos_cifrados = archivo.read()
         
+        f = Fernet(clave_final)
+        datos_descifrados = f.decrypt(datos_cifrados)
 
-        key_de_digitos = 'a-TE3Yjp6Obuovey30I' + pregunta + 'HjiMnQ1BI6UnFh48uYaE= '
-        key = key_de_digitos
-        fernet = Fernet(key) 
+        with open('Inventario.csv', 'wb') as archivo:
+            archivo.write(datos_descifrados)
 
-        enc_file= open('Inventario.csv', 'rb') 
-        encrypted = enc_file.read() 
-
-        decrypted = fernet.decrypt(encrypted)
-
-        dec_file= open('Inventario.csv', 'wb')
-        dec_file.write(decrypted)
-        actualizacion_estado_dos()
-        print(Fore.YELLOW +"Archivo desencryptado"+Fore.RESET)
+        print(Fore.GREEN + "El archivo se desencriptó con éxito" + Fore.RESET)
+    
+    except Exception as e:
+        print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
 
 
 def menu():
