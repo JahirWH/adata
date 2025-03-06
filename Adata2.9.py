@@ -78,29 +78,28 @@ def show():
 
 #Problema de logica al hacer un bucle de desincryptacion
 
-def validate():
-    while True:
+def validate():    
 
+        password = getpass.getpass("Introduce tu Usuario de 4 letras: ")
         
-
-        password = getpass.getpass("Introduce tu contraseña: ")
-
-        if password =="1234":
-            break
-
+        if not password.isdigit() or len(password) != 4:
+            print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
+            print("├─┘├─┤└─┐└─┐││││ │├┬┘ ││   │││││  │ │├┬┘├┬┘├┤ │   │ ")  
+            print("┴  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘   ┴┘└┘└─┘└─┘┴└─┴└─└─┘└─┘ ┴ ")
+            time.sleep(2)
+            clearConsole()
+            print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos ." + Fore.RESET)
+            return None
+            
         elif password =="exit" or password == "salir":
             print("saliendo....")
             estado_salida()
             sys.exit(0)
             #error=="Generado"
+        return password
             
 
-        elif password !="1234!":
-            clearConsole()
-            print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
-            print("├─┘├─┤└─┐└─┐││││ │├┬┘ ││   │││││  │ │├┬┘├┬┘├┤ │   │ ")  
-            print("┴  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘   ┴┘└┘└─┘└─┘┴└─┴└─└─┘└─┘ ┴ ")
-
+  
             
 
 def inicio_sesion():
@@ -259,16 +258,17 @@ def encrypted_with_key():
     actualizacion_estado()
 
 def encrypted():
-
-
-        key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
             #key = Fernet.generate_key()
             #archivo = open('key.key', 'rb')
             #key=archivo.read()
 
                 #with open('key.txt', 'wb') as filekey:
                  #  filekey.write(key)
+        secreto = validate()
 
+        if secreto is None :
+        	print(Fore.RED + "No se ingresó una clave válida." + Fore.RESET)
+        	return
         identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
         clave_base = secreto + identificador  
 
@@ -284,7 +284,7 @@ def encrypted():
         archivo =open('Inventario.csv','rb')
         datos = archivo.read()
    
-        fernet = Fernet(key)     
+        fernet = Fernet(clave_final)     
         file=open('Inventario.csv', 'rb') 
         original = file.read() 
 
@@ -309,20 +309,40 @@ def encrypted():
     #return
 def decrypted():    
 
-        key = 'TnU7BwDz2-U7B1R9slai48vJgnl93GN-5xYpw14ZDyg='
-        fernet = Fernet(key) 
+        key = validate()        
+        identificador = input('Ingresa la clave: ')
 
-        enc_file= open('Inventario.csv', 'rb') 
-        encrypted = enc_file.read() 
+        if not identificador.isdigit() or len(identificador) != 4:
+            print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos numéricos." + Fore.RESET)
+            return
+        clave_base = key + identificador  
 
-        decrypted = fernet.decrypt(encrypted)
+        clave_hash = hashlib.sha256(clave_base.encode()).digest()
+        clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+        try:
+        # Leer archivo y desencriptar
+            with open('Inventario.csv', 'rb') as archivo:
+                datos_cifrados = archivo.read()
+        
+                f = Fernet(clave_final)
+                datos_descifrados = f.decrypt(datos_cifrados)
 
-        dec_file= open('Inventario.csv', 'wb')
-        dec_file.write(decrypted)
-        actualizacion_estado_dos()
-        time.sleep(0.5)
-        print(Fore.BLUE + Style.BRIGHT+"El archivo se desencrypto "+Style.RESET_ALL)
+            with open('Inventario.csv', 'wb') as archivo:
+                 archivo.write(datos_descifrados)
 
+            actualizacion_estado_dos()
+            time.sleep(0.5)
+            print(Fore.GREEN + "El archivo se desencriptó con éxito" + Fore.RESET)
+    
+        except Exception as e:
+            print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
+
+
+     
+
+    # Crear un hash SHA256 y codificarlo para Fernet
+
+ 
 
 
 def decrypted_key():
