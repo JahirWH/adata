@@ -83,12 +83,9 @@ secreto = password
 
 def validate():
         
-        if not password.isdigit() or len(password) > 5 :
+        if not password.isalpha() or len(password) > 6:
             clearConsole()
-            print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
-            print("├─┘├─┤└─┐└─┐││││ │├┬┘ ││   │││││  │ │├┬┘├┬┘├┤ │   │ ")  
-            print("┴  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘   ┴┘└┘└─┘└─┘┴└─┴└─└─┘└─┘ ┴ ")
-            time.sleep(1    )
+            time.sleep(1)
             clearConsole()
             print(Fore.RED + "Error: Si introduces un usuario incorrecto no podras desencryptar ." + Fore.RESET)
             time.sleep(3)
@@ -217,12 +214,12 @@ def genera_clave():
                         secreto = input('Tu usuario de maximo 6 letras: ')  # Puede ser cualquier identificador único
                         identificador = input('Clave de maximo 6 numeros: ') 
                          # Usa el nombre de usuario del sistema
-                        if not identificador.isdigit() or len(identificador) > 6:
-                            print(Fore.RED + "Error: Debes ingresar un máximo de 6 dígitos." + Fore.RESET)
-                            return
 # Validar usuario (solo letras y máximo 6 caracteres)
                         if not secreto.isalpha() or len(secreto) > 6:
                             print(Fore.RED + "Error: Debes ingresar un máximo de 6 letras." + Fore.RESET)
+                            return
+                        if not identificador.isdigit() or len(identificador) > 6:
+                            print(Fore.RED + "Error: Debes ingresar un máximo de 6 dígitos." + Fore.RESET)
                             return
                         clave_base = secreto + identificador  
     # Crear un hash SHA256 de la clave base
@@ -269,30 +266,33 @@ def genera_clave():
 
         #Elecion si quiero que se desencrypte con llave interna o externa
 
-def encrypted_with_key():
-    identificador = input('Usurio maximo 4 letras o num :')  # Usa el nombre de usuario del sistema
-    clave_base = secreto + identificador  
-    # Crear un hash SHA256 de la clave base
-    clave_hash = hashlib.sha256(clave_base.encode()).digest()
-    # Tomar los primeros 32 bytes y codificarlos en base64 para Fernet
-    clave_final = base64.urlsafe_b64encode(clave_hash[:32])
-    # Mostrar la clave generada
-    print("Clave generada:", clave_final.decode())
-    archivo =open('Inventario.csv','rb')
-    datos = archivo.read()
-    f = Fernet(clave_final)
-    datos_cifrados = f.encrypt(datos)
-    encrypted_file= open('Inventario.csv', 'wb') 
-    encrypted_file.write(datos_cifrados)
-    print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
-    actualizacion_estado()
+# def encrypted_with_key():
+#     identificador = input('Usurio maximo 4 letras o num :')  # Usa el nombre de usuario del sistema
+#     clave_base = secreto + identificador  
+#     # Crear un hash SHA256 de la clave base
+#     clave_hash = hashlib.sha256(clave_base.encode()).digest()
+#     # Tomar los primeros 32 bytes y codificarlos en base64 para Fernet
+#     clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+#     # Mostrar la clave generada
+#     print("Clave generada:", clave_final.decode())
+#     archivo =open('Inventario.csv','rb')
+#     datos = archivo.read()
+#     f = Fernet(clave_final)
+#     datos_cifrados = f.encrypt(datos)
+#     encrypted_file= open('Inventario.csv', 'wb') 
+#     encrypted_file.write(datos_cifrados)
+#     print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
+#     actualizacion_estado()
 
 def encrypted():
             #key = Fernet.generate_key()
             #archivo = open('key.key', 'rb')
             #key=archivo.read()                #with open('key.txt', 'wb') as filekey:
                  #  filekey.write(key)
-        indentificador = input("crea clave: ")
+        indentificador = input(Fore.BLUE+"Crea clave numerica de maximo 6 digitos: "+Fore.RESET)
+        if not indentificador.isdigit() or len(indentificador) < 6:
+            print(Fore.RED + 'Solo numeros de un maximo de 6 digitos'+ Fore.RESET)
+
         clave_base = secreto + indentificador  
 
     # Crear un hash SHA256 de la clave base
@@ -337,10 +337,10 @@ def encrypted():
     #return
 def decrypted():    
         key = secreto        
-        identificador = input('Ingresa los 4 digitos para desencriptar : ')
+        identificador = input(Fore.GREEN+'Ingresa los digitos numericos para desencriptar : '+ Fore.RESET)
 
-        if not identificador.isdigit() or len(identificador) != 4:
-            print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos numéricos." + Fore.RESET)
+        if not identificador.isdigit() or len(identificador) > 6:
+            print(Fore.RED + "Error: Debes ingresar maximo 6 dígitos numéricos." + Fore.RESET)
             return
         clave_base = key + identificador  
 
@@ -363,6 +363,10 @@ def decrypted():
             return clave_final
     
         except Exception as e:
+            print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
+            print("├─┘├─┤└─┐└─┐││││ │├┬┘ ││   │││││  │ │├┬┘├┬┘├┤ │   │ ")  
+            print("┴  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘   ┴┘└┘└─┘└─┘┴└─┴└─└─┘└─┘ ┴ ")
+            time.sleep(1)
             print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
 
 
@@ -373,37 +377,37 @@ def decrypted():
  
 
 
-def decrypted_key():
+# def decrypted_key():
 
   
     
-    identificador = input('Crea Usuario :  ')
+#     identificador = input('Crea Usuario :  ')
 
-    if not identificador.isdigit() or len(identificador) != 6:
-        print(Fore.RED + "Error: Debes ingresar maximo 6 dígitos." + Fore.RESET)
-        return
+#     if not identificador.isdigit() or len(identificador) != 6:
+#         print(Fore.RED + "Error: Debes ingresar maximo 6 dígitos." + Fore.RESET)
+#         return
 
-    clave_base = secreto + identificador  
+#     clave_base = secreto + identificador  
 
-    # Crear un hash SHA256 y codificarlo para Fernet
-    clave_hash = hashlib.sha256(clave_base.encode()).digest()
-    clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+#     # Crear un hash SHA256 y codificarlo para Fernet
+#     clave_hash = hashlib.sha256(clave_base.encode()).digest()
+#     clave_final = base64.urlsafe_b64encode(clave_hash[:32])
 
-    try:
-        # Leer archivo y desencriptar
-        with open('Inventario.csv', 'rb') as archivo:
-            datos_cifrados = archivo.read()
+#     try:
+#         # Leer archivo y desencriptar
+#         with open('Inventario.csv', 'rb') as archivo:
+#             datos_cifrados = archivo.read()
         
-        f = Fernet(clave_final)
-        datos_descifrados = f.decrypt(datos_cifrados)
+#         f = Fernet(clave_final)
+#         datos_descifrados = f.decrypt(datos_cifrados)
 
-        with open('Inventario.csv', 'wb') as archivo:
-            archivo.write(datos_descifrados)
+#         with open('Inventario.csv', 'wb') as archivo:
+#             archivo.write(datos_descifrados)
 
-        print(Fore.GREEN + "El archivo se desencriptó con éxito" + Fore.RESET)
+#         print(Fore.GREEN + "El archivo se desencriptó con éxito" + Fore.RESET)
     
-    except Exception as e:
-        print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
+#     except Exception as e:
+#         print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
 
 
 def menu():
@@ -413,7 +417,6 @@ def menu():
     print("3--- Modificar ","               4--- Buscar")
     print("5--- Encryptar      ","          6--- Desencryptar")
     print("7--- Generar password","         8--- Genera nuevas claves")
-    print("9--- Decryp_con_key","           10---Encryp_externa")
     print(Fore.RED+"eliminartodo"+Fore.RESET)
 
 
@@ -601,23 +604,23 @@ def main():
         elif option == '8':
             genera_clave()
             pausa()
-        elif option == '9':
-            decrypted_key()
-            pausa()
+        # elif option == '9':
+        #     decrypted_key()
+        #     pausa()
         elif option == 'eliminartodo':
             Eliminacion()
             pausa()
-        elif option == '10':
-            estado_key()
-            pausa()
+        # elif option == '10':
+        #     estado_key()
+        #     pausa()
         elif option == 'exit' or 'salir':
             estado_salida()
             clearConsole()
-            print("Revisando ...")
+            print(Fore.GREEN + "Revisando ..."+ Fore.RESET)
             time.sleep(1)
+    
             clearConsole()
-            print("SALIENDO....!")
-            time.sleep(1)
+            print(Fore.GREEN + "SALIENDO....!" + Fore.RESET)
             break
         else:
             print('opcion invalida')
