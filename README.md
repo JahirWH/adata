@@ -12,11 +12,15 @@ pip install -r requirements.txt
 ✅ Interfaz sencilla y fácil de usar
 ✅ Posibilidad de convertirlo en un ejecutable portable (.exe)
 
-![Captura de pantalla de 2024-11-28 20 45 35](https://github.com/user-attachments/assets/56b5153d-ae8f-4fd4-93cd-e2879f0e6975)
+![1](https://github.com/user-attachments/assets/309e147a-8382-4b45-bb5a-56a2da076d14)
+Usuario: login
+clave:12345
+![2](https://github.com/user-attachments/assets/f3772587-6ab1-4069-b873-150a0b7fe847)
+![3](https://github.com/user-attachments/assets/3f41f509-563c-402e-96ec-a20d20422cb4)
 
 
 
-![Captura de pantalla de 2024-11-28 20 45 25](https://github.com/user-attachments/assets/74836a81-d0bf-4606-a089-9eba1f6b0723)
+
 
 
 
