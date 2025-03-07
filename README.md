@@ -26,12 +26,11 @@ Usuario: login
 
 Clave: 12345
 
-![1](https://github.com/user-attachments/assets/309e147a-8382-4b45-bb5a-56a2da076d14)
 
 Vista principal:
 
 
-![3](https://github.com/user-attachments/assets/3f41f509-563c-402e-96ec-a20d20422cb4)
+![cap](https://github.com/user-attachments/assets/75ceb1e9-fab3-428f-a540-6ebfba3773aa)
 
 
 
