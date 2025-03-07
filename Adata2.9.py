@@ -78,28 +78,29 @@ def show():
 
 #Problema de logica al hacer un bucle de desincryptacion
 
-def validate():    
+password = input("Introduce tu Usuario : ")
+secreto = password
 
-        password = getpass.getpass("Introduce tu Usuario de 4 letras: ")
+def validate():
         
-        if not password.isdigit() or len(password) != 4:
+        if not password.isdigit() or len(password) > 5 :
+            clearConsole()
             print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
             print("├─┘├─┤└─┐└─┐││││ │├┬┘ ││   │││││  │ │├┬┘├┬┘├┤ │   │ ")  
             print("┴  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘   ┴┘└┘└─┘└─┘┴└─┴└─└─┘└─┘ ┴ ")
-            time.sleep(2)
+            time.sleep(1    )
             clearConsole()
-            print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos ." + Fore.RESET)
+            print(Fore.RED + "Error: Si introduces un usuario incorrecto no podras desencryptar ." + Fore.RESET)
+            time.sleep(3)
             return None
-            
+                    
         elif password =="exit" or password == "salir":
             print("saliendo....")
             estado_salida()
             sys.exit(0)
-            #error=="Generado"
-        return password
+                    #error=="Generado"
             
 
-  
             
 
 def inicio_sesion():
@@ -109,9 +110,7 @@ def inicio_sesion():
         tem = open('temp.txt','r')
         ver=tem.read()
         print('Contrasena temporal  : '+ Fore.BLUE + Style.BRIGHT+ver+Style.RESET_ALL)
-            
 
-      
 
 def archivo_estado():
         abrir = open('estado.txt', 'r')
@@ -147,11 +146,11 @@ def Generate_pas():
     lee.close()
 
 
-#encryptacion automatica al cerrar el programa
 def Eliminacion():
     os.remove("Inventario.csv")
     print(Fore.RED+"Archivo eliminado"+Fore.RESET)
     validate()
+#encryptacion automatica al cerrar el programa
 
 def estado_key():
     #Convercion al leer el estado solo validacion, no agrega o modifica el estado
@@ -169,7 +168,7 @@ def estado_key():
     #generar un archivo extra donde diga si el archivo esta encryptado si lo esta no no encryptara dos veces
 def estado():
     #Convercion al leer el estado solo validacion, no agrega o modifica el estado
-    le = open('estado.txt')
+    le = open('estado.txt',"r",)
     estado=le.read()
     if estado =="encrypted":
         print("archivo ya esta encryptado!!! ")
@@ -212,35 +211,66 @@ def actualizacion_estado_dos():
     archivo_estado.close()
 
 def genera_clave():
-                    print("Desea generar una nueva clave de encryptacion")
+                    print("Desea generar una nueva contraseña y usuario: ")
                     save=input("Y/N :")
                     if save== 'Y' or save== 'y':
-                    	secreto = input('Pon tu usuario o clabe secreta')  # Puede ser cualquier identificador único
-                    	identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
-                    	clave_base = secreto + identificador  
-                    	clave_hash = hashlib.sha256(clave_base.encode()).digest()
-                    	clave_final = base64.urlsafe_b64encode(clave_hash[:32])
-                    	print(Fore.RED+"La nueva clave de encryptacion es \n"+Fore.RESET)
-                    	print("Clave generada:", clave_final.decode())
-                    	time.sleep(4)
-                    	clearConsole()
-                    	print("La clave se guardara en el directorio con el nombre: Clave.txt")
-                    	time.sleep(3)
-                    	clearConsole()
-                    	archivo = open('clave.txt','wb')
-                    	archivo.write(clave_final)
-                    	archivo.close()
+                        secreto = input('Tu usuario de maximo 6 letras: ')  # Puede ser cualquier identificador único
+                        identificador = input('Clave de maximo 6 numeros: ') 
+                         # Usa el nombre de usuario del sistema
+                        if not identificador.isdigit() or len(identificador) > 6:
+                            print(Fore.RED + "Error: Debes ingresar un máximo de 6 dígitos." + Fore.RESET)
+                            return
+# Validar usuario (solo letras y máximo 6 caracteres)
+                        if not secreto.isalpha() or len(secreto) > 6:
+                            print(Fore.RED + "Error: Debes ingresar un máximo de 6 letras." + Fore.RESET)
+                            return
+                        clave_base = secreto + identificador  
+    # Crear un hash SHA256 de la clave base
+                        clave_hash = hashlib.sha256(clave_base.encode()).digest()
+                        clave_final = base64.urlsafe_b64encode(clave_hash[:32])
+                        print(Fore.RED+"La nueva clave de encryptacion es \n"+Fore.RESET)
+                        print("Clave generada:", clave_final.decode())
+                        time.sleep(4)
+                        clearConsole()
+                        print("El usuario y clave se guardaran en : clave.txt")
+                        time.sleep(3)
+                        clearConsole()
+                        with open('clave.txt', 'wb') as archivo:
+                            archivo.write(secreto + "\n" + identificador)  # Usamos "\n" para salto de línea
+                        archivo.close()
+                        print(Fore.BLUE+"La clave se a guardado con exito"+Fore.RESET)
+                        time.sleep(3)
+                        print("Desea encryptar el archivo ahora con las nuevas claves:")
+                        da = input("Y/N :")
+                        if da == "Y" or da == "y":
+                            le = open('estado.txt',"r",)
+                            estado=le.read()
 
-                    	print(Fore.BLUE+"La clave se a guardado con exito"+Fore.RESET)
-                    	time.sleep(3)
+                            if estado =="encrypted":
+                                print("Primero desencrypte el archivo!!! ")
+                                return
+                            #validate()
+                            elif estado== "decrypted":
+                                archivo =open('Inventario.csv','rb')
+                                datos = archivo.read()
+                                f = Fernet(clave_final)
+                                datos_cifrados = f.encrypt(datos)
+                                encrypted_file= open('Inventario.csv', 'wb') 
+                                encrypted_file.write(datos_cifrados)
+                                print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
+                                actualizacion_estado()
+                        else:
+                            print("SALIENDO...")
+                            time.sleep(1)
+                            return
+
                     else:
                         print("SALIENDO...")
 
         #Elecion si quiero que se desencrypte con llave interna o externa
 
 def encrypted_with_key():
-    secreto = "MiSoftwareV1.0"  # Puede ser cualquier identificador único
-    identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
+    identificador = input('Usurio maximo 4 letras o num :')  # Usa el nombre de usuario del sistema
     clave_base = secreto + identificador  
     # Crear un hash SHA256 de la clave base
     clave_hash = hashlib.sha256(clave_base.encode()).digest()
@@ -260,17 +290,10 @@ def encrypted_with_key():
 def encrypted():
             #key = Fernet.generate_key()
             #archivo = open('key.key', 'rb')
-            #key=archivo.read()
-
-                #with open('key.txt', 'wb') as filekey:
+            #key=archivo.read()                #with open('key.txt', 'wb') as filekey:
                  #  filekey.write(key)
-        secreto = validate()
-
-        if secreto is None :
-        	print(Fore.RED + "No se ingresó una clave válida." + Fore.RESET)
-        	return
-        identificador = input('Pon 4 numeros')  # Usa el nombre de usuario del sistema
-        clave_base = secreto + identificador  
+        indentificador = input("crea clave: ")
+        clave_base = secreto + indentificador  
 
     # Crear un hash SHA256 de la clave base
         clave_hash = hashlib.sha256(clave_base.encode()).digest()
@@ -302,15 +325,19 @@ def encrypted():
         print(Fore.BLUE + Style.BRIGHT+"Archivo encryptado con exito!"+Style.RESET_ALL)
 
 
+        # indentificador = input("Ingresa tu consetrasena para desencriptar: ")
+        if secreto is None :
+            print(Fore.RED + "No se ingresó una clave válida." + Fore.RESET)
+            return
 
+        
 #desencrptacion automatica al introducior la contraseña correcta
 
 
     #return
 def decrypted():    
-
-        key = validate()        
-        identificador = input('Ingresa la clave: ')
+        key = secreto        
+        identificador = input('Ingresa los 4 digitos para desencriptar : ')
 
         if not identificador.isdigit() or len(identificador) != 4:
             print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos numéricos." + Fore.RESET)
@@ -333,6 +360,7 @@ def decrypted():
             actualizacion_estado_dos()
             time.sleep(0.5)
             print(Fore.GREEN + "El archivo se desencriptó con éxito" + Fore.RESET)
+            return clave_final
     
         except Exception as e:
             print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
@@ -348,11 +376,11 @@ def decrypted():
 def decrypted_key():
 
   
-    secreto = "MiSoftwareV1.0"
-    identificador = input('Pon los mismos 4 números: ')
+    
+    identificador = input('Crea Usuario :  ')
 
-    if not identificador.isdigit() or len(identificador) != 4:
-        print(Fore.RED + "Error: Debes ingresar exactamente 4 dígitos numéricos." + Fore.RESET)
+    if not identificador.isdigit() or len(identificador) != 6:
+        print(Fore.RED + "Error: Debes ingresar maximo 6 dígitos." + Fore.RESET)
         return
 
     clave_base = secreto + identificador  
@@ -384,7 +412,7 @@ def menu():
     print("1--- Ver   ","                   2--- Agregar " )
     print("3--- Modificar ","               4--- Buscar")
     print("5--- Encryptar      ","          6--- Desencryptar")
-    print("7--- Generar password","         8--- Genera_key_encrypt")
+    print("7--- Generar password","         8--- Genera nuevas claves")
     print("9--- Decryp_con_key","           10---Encryp_externa")
     print(Fore.RED+"eliminartodo"+Fore.RESET)
 
@@ -506,7 +534,7 @@ def modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha):
         writer.writeheader()
         writer.writerows(result)
         actualizacion_sesion()
-       	print(f"EL {ubicacion} CON {descripcion} SE AGREGÓ CORRECTAMENTE")
+        print(f"EL {ubicacion} CON {descripcion} SE AGREGÓ CORRECTAMENTE")
 
 
 def ExisteCodigo(codigo):
@@ -583,14 +611,14 @@ def main():
             estado_key()
             pausa()
         elif option == 'exit' or 'salir':
-	        estado_salida()
-	        clearConsole()
-	        print("Encryptando automaticamente ...")
-	        time.sleep(1)
-	        clearConsole()
-	        print("SALIENDO....!")
-	        time.sleep(1)
-	        break
+            estado_salida()
+            clearConsole()
+            print("Revisando ...")
+            time.sleep(1)
+            clearConsole()
+            print("SALIENDO....!")
+            time.sleep(1)
+            break
         else:
             print('opcion invalida')
      
