@@ -81,6 +81,7 @@ def show():
 password = input("Introduce tu Usuario : ")
 secreto = password
 
+
 def validate():
         
         if not password.isalpha() or len(password) > 6:
@@ -230,13 +231,13 @@ def genera_clave():
                         time.sleep(4)
                         clearConsole()
                         print("El usuario y clave se guardaran en : clave.txt")
-                        time.sleep(3)
+                        time.sleep(2)
                         clearConsole()
                         with open('clave.txt', 'wb') as archivo:
-                            archivo.write(secreto + "\n" + identificador)  # Usamos "\n" para salto de línea
-                        archivo.close()
+                            archivo.write(f"Usuario: {secreto}:password:{identificador}\n".encode())  # Separar usuario y clave   
+                            archivo.close()                    
                         print(Fore.BLUE+"La clave se a guardado con exito"+Fore.RESET)
-                        time.sleep(3)
+                        time.sleep(2)
                         print("Desea encryptar el archivo ahora con las nuevas claves:")
                         da = input("Y/N :")
                         if da == "Y" or da == "y":
@@ -284,16 +285,16 @@ def genera_clave():
 #     print(Fore.RED+"El archivo se encrypto con exito"+Fore.RESET)
 #     actualizacion_estado()
 
-def encrypted():
-            #key = Fernet.generate_key()
-            #archivo = open('key.key', 'rb')
-            #key=archivo.read()                #with open('key.txt', 'wb') as filekey:
-                 #  filekey.write(key)
-        indentificador = input(Fore.BLUE+"Crea clave numerica de maximo 6 digitos: "+Fore.RESET)
-        if not indentificador.isdigit() or len(indentificador) < 6:
-            print(Fore.RED + 'Solo numeros de un maximo de 6 digitos'+ Fore.RESET)
 
-        clave_base = secreto + indentificador  
+def encrypted():
+    
+        identificador = input(Fore.BLUE + "Crea clave numérica de máximo 6 dígitos: " + Fore.RESET)
+
+        if not identificador.isdigit() or len(identificador) > 6:
+            print(Fore.RED + "Error: La clave debe contener solo números y un máximo de 6 dígitos." + Fore.RESET)
+            return
+
+        clave_base = secreto + identificador  
 
     # Crear un hash SHA256 de la clave base
         clave_hash = hashlib.sha256(clave_base.encode()).digest()
@@ -325,7 +326,7 @@ def encrypted():
         print(Fore.BLUE + Style.BRIGHT+"Archivo encryptado con exito!"+Style.RESET_ALL)
 
 
-        # indentificador = input("Ingresa tu consetrasena para desencriptar: ")
+        # identificador = input("Ingresa tu consetrasena para desencriptar: ")
         if secreto is None :
             print(Fore.RED + "No se ingresó una clave válida." + Fore.RESET)
             return
@@ -335,13 +336,14 @@ def encrypted():
 
 
     #return
-def decrypted():    
-        key = secreto        
-        identificador = input(Fore.GREEN+'Ingresa los digitos numericos para desencriptar : '+ Fore.RESET)
+def decrypted():
+        key = secreto
+        identificador = input(Fore.GREEN + 'Ingresa los dígitos numéricos para desencriptar: ' + Fore.RESET)
 
         if not identificador.isdigit() or len(identificador) > 6:
-            print(Fore.RED + "Error: Debes ingresar maximo 6 dígitos numéricos." + Fore.RESET)
+            print(Fore.RED + "Error: Debes ingresar máximo 6 dígitos numéricos." + Fore.RESET)
             return
+    
         clave_base = key + identificador  
 
         clave_hash = hashlib.sha256(clave_base.encode()).digest()
@@ -360,7 +362,7 @@ def decrypted():
             actualizacion_estado_dos()
             time.sleep(0.5)
             print(Fore.GREEN + "El archivo se desencriptó con éxito" + Fore.RESET)
-            return clave_final
+            return identificador  # Retorna el identificador si es necesario
     
         except Exception as e:
             print("┌─┐┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐   ┬┌┐┌┌─┐┌─┐┬─┐┬─┐┌─┐┌─┐┌┬┐")  
@@ -369,8 +371,7 @@ def decrypted():
             time.sleep(1)
             print(Fore.RED + "Error: No se pudo desencriptar el archivo. ¿Ingresaste los números correctos?" + Fore.RESET)
 
-
-     
+  # Obtener el identificador desde decrypted
 
     # Crear un hash SHA256 y codificarlo para Fernet
 
@@ -594,6 +595,7 @@ def main():
             pausa()
         elif option == '5':
             estado()
+
             pausa()
         elif option == '6':
             estado_dos()
