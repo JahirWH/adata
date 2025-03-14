@@ -129,6 +129,7 @@ def actualizacion_sesion():
 
 
 #Generador de passwords 
+
 def Generate_pas():
 
     longitud = input("De cuantos digitos? :")
@@ -139,9 +140,9 @@ def Generate_pas():
     p = p.join([choice(valores) for i in range(longitud)])
     print("Contrasena generada!:")
     print(Fore.BLUE + Style.BRIGHT+p+Style.RESET_ALL)
-    lee = open('temp.txt','w')
-    lee.write(p)
-    lee.close()
+    with open('temp.txt', 'w') as lee:
+            lee.write(p)
+
 
 
 def Eliminacion():
@@ -165,24 +166,30 @@ def estado_key():
 
     #generar un archivo extra donde diga si el archivo esta encryptado si lo esta no no encryptara dos veces
 def estado():
-    #Convercion al leer el estado solo validacion, no agrega o modifica el estado
-    le = open('estado.txt',"r",)
-    estado=le.read()
-    if estado =="encrypted":
-        print("archivo ya esta encryptado!!! ")
-        #validate()
-    elif estado== "decrypted":
-        encrypted()
-        return
-    else: 
-        print("Error en algo") 
+    try:
+        with open('estado.txt', "r") as le:
+            estado = le.read().strip()
+
+        if estado == "encrypted":
+            print("Archivo ya está encriptado!!!")
+        elif estado == "decrypted":
+            encrypted()  # Asegúrate de que la función encrypted() está definida
+        else:
+            print("Error: Estado desconocido.")
+
+    except FileNotFoundError:
+        print("Error: El archivo 'estado.txt' no existe.")
 
 def estado_salida():
-    les = open('estado.txt')
-    estado_salir=les.read()
-    if estado_salir== "decrypted":
-        encrypted()
-        return
+    try:
+        with open('estado.txt', "r") as les:
+            estado_salir = les.read().strip()
+
+        if estado_salir == "decrypted":
+            encrypted()
+    except FileNotFoundError:
+        print("Error: No se encontró 'estado.txt'.")
+
 
 
 def estado_dos():
@@ -438,10 +445,24 @@ def Existename(service):
 
 
 def VerInventario():
-    df_csv = pl.read_csv("Inventario.csv")
-    print(df_csv)
-
+    try:
+        df_csv = pl.read_csv("Inventario.csv")
         
+        if df_csv.is_empty():
+            print(Fore.YELLOW + "El inventario está vacío o encryptado" + Fore.RESET)
+            return
+        
+        print(Fore.CYAN + "📦 Inventario Actual 📦" + Fore.RESET)
+        pl.Config.set_tbl_rows(70)  # Ajusta el límite de filas visibles a 100
+        print(df_csv)
+
+    except FileNotFoundError:
+        print(Fore.RED + "Error: No se encontró 'Inventario.csv'." + Fore.RESET)
+    except pl.exceptions.NoDataError:
+        print(Fore.YELLOW + "El archivo está vacío" + Fore.RESET)
+    except Exception as e:
+        print(Fore.RED + f"Error inesperado: {e}" + Fore.RESET)
+   
 
 
 def ProductoNuevo():
@@ -482,36 +503,57 @@ def ProductoNuevo():
     except Exception as e:
         print(Fore.RED + f"Error inesperado: {e}" + Fore.RESET)
 
+
+
 def ModificarProducto():
-    ver= open('estado.txt','r')
-    var=ver.read()
+    # Verificar si el archivo "estado.txt" existe antes de abrirlo
+    if not os.path.exists('estado.txt'):
+        print(Fore.RED + "Error: No se encontró el archivo de estado." + Fore.RESET)
+        return
+
+    # Leer estado del archivo de manera segura
+    with open('estado.txt', 'r') as f:
+        var = f.read().strip()
 
     if var == 'encrypted':
-        print(Fore.RED+"Primero debe desencriptar el archivo!!"+Fore.RESET)
-    else:
-        
-        service=input('Ingrese servicio a modificar: ')
-        #if ExisteCodigo(codigo)=="No existe":
-         #   print('----Error el codigo que desea modificar no existe----')
-        if  Existename(service)=="No existe name":
-             print('----Error el Nombre que desea modificar no existe----')
-        else:
-            df=pl.read_csv('Inventario.csv')
-            palabra=service
-            print(Fore.YELLOW+"El Nombre actual contiene:  "+Fore.RESET)
-            #print(df.filter(df['codigo'].str.contains(palabra)))
-            print(df.filter(df['service'].str.contains(palabra)))
-            print('Ingrese el codigo a modificar')
-            codigo=input("o intro::")
-            ubicacion=input(' service: ')
-            descripcion=input('email: ')
-            unidad=input('password :')
-            tipo=input('username: ')
-            familia=input(' Web: ')
-            fecha=today
-            modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha)
+        print(Fore.RED + "Primero debe desencriptar el archivo!!" + Fore.RESET)
+        return  # Evita que siga ejecutando el código si está encriptado
+
+    # Pedir el servicio a modificar
+    service = input('Ingrese el servicio a modificar: ').strip()
+
+    # Verificar si el servicio existe
+    if Existename(service) == "No existe":  
+        print(Fore.RED + "Error: El servicio no existe en el inventario." + Fore.RESET)
+        return
+
+    # Cargar CSV
+    df = pl.read_csv('Inventario.csv')
 
 
+
+    # Filtrar servicio correctamente
+
+    ds =  df.filter(pl.col("service").str.contains(service))
+    # ds = df.filter(df['service'].str.contains(service))
+    # print(df.filter(df['service'].str.contains(palabra)))
+    print(Fore.YELLOW + "El servicio actual contiene: " + Fore.RESET)
+    print(ds)
+
+    # Pedir nuevos datos
+    codigo = input("Ingrese el código a modificar (deje en blanco para cancelar): ").strip()
+    if not codigo:
+        print(Fore.YELLOW + "Modificación cancelada." + Fore.RESET)
+        return
+
+    ubicacion = input('Nuevo servicio: ').strip()
+    descripcion = input('Nuevo email: ').strip()
+    unidad = input('Nueva contraseña: ').strip()
+    tipo = input('Nuevo usuario: ').strip()
+    familia = input('Nueva referencia: ').strip()
+    
+    # Llamar a la función que modifica los datos
+    modificarBDD(codigo, ubicacion, descripcion, unidad, tipo, familia)
 
 
 def modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha):
