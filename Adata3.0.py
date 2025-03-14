@@ -19,7 +19,7 @@ import hashlib
 
 init()                         
                             #LISTO #Agregar que se pueda guardar la contrasena temporalmente
-                            #PENDIENTE Agrega buscador online de archivos 
+                            #PENDIENTE Agrega buscador  de archivos 
                             #ADATA 2.9 correcocion de mejoras pequenas
                             #LISTO Vercion mejorada con polars correccion de errror de encryptacion 
                             #LISTO Agrege colores y auto eliminacion de datos
@@ -443,45 +443,44 @@ def VerInventario():
 
         
 
-#Modificacion del inventario
+
 def ProductoNuevo():
-    ver= open('estado.txt','r')
-    var=ver.read()
+    try:
+        with open('estado.txt', 'r') as ver:
+            var = ver.read().strip()  # Eliminar espacios en blanco
 
-    if var == 'encrypted':
-        print(Fore.RED+"Primero debe desencriptar el archivo!!"+Fore.RESET)
-        
-    else:
-    
+        if var == 'encrypted':
+            print(Fore.RED + "Primero debe desencriptar el archivo!!" + Fore.RESET)
+            return
+
         from random import randint
-        lista = []
-        for x in range(2):
-            lista.append(str(randint(0,99)))
-            #lista.append(str(a)) #Estas 2 líneas se pueden juntar en: lista.append(str(randint(0,9)))
+        codigo = ''.join(str(randint(0, 9)) for _ in range(4))  # Código de 4 dígitos aleatorios
+        
+        if ExisteCodigo(codigo) != "No existe":
+            print(Fore.RED + "Error: el código ya existe." + Fore.RESET)
+            return
 
-        codigo = ''
-        for x in range(2):
-            codigo = codigo + lista[x]
-            codigo_int = int(codigo)
+        ubicacion = input('Servicio: ').strip()
+        descripcion = input('Email: ').strip()
+        unidad = input('Password: ').strip()
+        tipo = input('Usuario: ').strip()
+        familia = input('Referencia: ').strip()
+        fecha = str(date.today())
 
-            today = str(date.today())
+        # Verificar que todos los campos tengan datos
+        if not all([ubicacion, descripcion, unidad, tipo, familia]):
+            print(Fore.RED + "Error: No puedes dejar campos vacíos." + Fore.RESET)
+            return
 
-            
-        if ExisteCodigo(codigo)=="No existe":
-            ubicacion=input('Servicio: ')
-            descripcion=input('Email: ')
-            unidad=input('Password: ')
-            tipo=input('Usuario: ')
-            familia=input('Referencia: ')
-            fecha=today
+        with open('Inventario.csv', 'a') as file:
+            file.write(f'\n{codigo},{ubicacion},{descripcion},{unidad},{tipo},{familia},{fecha}')
+        
+        print(Fore.GREEN + "Se agregó correctamente." + Fore.RESET)
 
-
-            with open ('Inventario.csv','a')as File:
-                File.write('\n'+codigo+','+ubicacion+','+descripcion+','
-                +unidad+','+tipo+','+familia+','+fecha)
-            print('Se agrego correctamente')
-        else:
-            print("****Error el codigo ya existe****")
+    except FileNotFoundError:
+        print(Fore.RED + "Error: No se encontró 'estado.txt'." + Fore.RESET)
+    except Exception as e:
+        print(Fore.RED + f"Error inesperado: {e}" + Fore.RESET)
 
 def ModificarProducto():
     ver= open('estado.txt','r')
