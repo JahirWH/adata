@@ -551,9 +551,9 @@ def ModificarProducto():
     unidad = input('Nueva contraseña: ').strip()
     tipo = input('Nuevo usuario: ').strip()
     familia = input('Nueva referencia: ').strip()
-    
+    fecha = today 
     # Llamar a la función que modifica los datos
-    modificarBDD(codigo, ubicacion, descripcion, unidad, tipo, familia)
+    modificarBDD(codigo, ubicacion, descripcion, unidad, tipo, familia, fecha)
 
 
 def modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha):
