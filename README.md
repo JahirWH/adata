@@ -14,6 +14,9 @@ Adata es un administrador y encriptador avanzado de archivos personales en forma
 | Autenticación fuerte | Export/Import seguro | CLI amigable |
 | Protección contra fuerza bruta | Portable (.exe) | Feedback claro |
 
+![cap](https://github.com/user-attachments/assets/75ceb1e9-fab3-428f-a540-6ebfba3773aa)
+
+
 ## 🚀 Instalación Rápida
 
 ```bash
@@ -24,4 +27,4 @@ git clone https://github.com/tuusuario/adata.git
 pip install -r requirements.txt
 
 # Ejecutar aplicación
-python main.py
+/bin/python3  ./Adata3.0.py
