@@ -18,13 +18,7 @@ import hashlib
 
 
 init()                         
-                            #LISTO #Agregar que se pueda guardar la contrasena temporalmente
-                            #PENDIENTE Agrega buscador  de archivos 
-                            #ADATA 2.9 correcocion de mejoras pequenas
-                            #LISTO Vercion mejorada con polars correccion de errror de encryptacion 
-                            #LISTO Agrege colores y auto eliminacion de datos
-                            #PENDIENTE Agregacion de syncronizacion de archivos y bases de datos
-                            #LISTO Verificacion de archivos desencryptado para modificar o agregar
+                          
 
 today = str(date.today())
 time_tiempo = 6.2
@@ -128,20 +122,28 @@ def actualizacion_sesion():
     archivo_estado.close()
 
 
-#Generador de passwords 
 
 def Generate_pas():
-
-    longitud = input("De cuantos digitos? :")
+    longitud = input("¿De cuántos dígitos quieres las contraseñas?: ").strip()
+    
+    if not longitud.isdigit():
+        print(Fore.RED + "⚠️ Ingresa solo números." + Fore.RESET)
+        return
     longitud = int(longitud)
+
     valores = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<=>@#%&+"
 
-    p = ""
-    p = p.join([choice(valores) for i in range(longitud)])
-    print("Contrasena generada!:")
-    print(Fore.BLUE + Style.BRIGHT+p+Style.RESET_ALL)
+    print(Fore.GREEN + "\nContraseñas generadas:" + Fore.RESET)
+    contrasenas = []
+
+    for _ in range(2):
+        p = ''.join([choice(valores) for _ in range(longitud)])
+        contrasenas.append(p)
+        print(Fore.CYAN + Style.BRIGHT + p + Style.RESET_ALL)
+
+    # Guarda la última contraseña generada en temp.txt
     with open('temp.txt', 'w') as lee:
-            lee.write(p)
+        lee.write(contrasenas[-1])
 
 
 
@@ -504,82 +506,90 @@ def ProductoNuevo():
         print(Fore.RED + f"Error inesperado: {e}" + Fore.RESET)
 
 
-
 def ModificarProducto():
-    # Verificar si el archivo "estado.txt" existe antes de abrirlo
     if not os.path.exists('estado.txt'):
         print(Fore.RED + "Error: No se encontró el archivo de estado." + Fore.RESET)
         return
 
-    # Leer estado del archivo de manera segura
     with open('estado.txt', 'r') as f:
         var = f.read().strip()
 
     if var == 'encrypted':
         print(Fore.RED + "Primero debe desencriptar el archivo!!" + Fore.RESET)
-        return  # Evita que siga ejecutando el código si está encriptado
+        return
 
-    # Pedir el servicio a modificar
     service = input('Ingrese el servicio a modificar: ').strip()
 
-    # Verificar si el servicio existe
     if Existename(service) == "No existe":  
         print(Fore.RED + "Error: El servicio no existe en el inventario." + Fore.RESET)
         return
 
-    # Cargar CSV
     df = pl.read_csv('Inventario.csv')
 
-
-
-    # Filtrar servicio correctamente
-
-    ds =  df.filter(pl.col("service").str.contains(service))
-    # ds = df.filter(df['service'].str.contains(service))
-    # print(df.filter(df['service'].str.contains(palabra)))
+    # Mostrar todos los servicios coincidentes
+    ds = df.filter(pl.col("service").str.contains(service))
     print(Fore.YELLOW + "El servicio actual contiene: " + Fore.RESET)
     print(ds)
 
-    # Pedir nuevos datos
     codigo = input("Ingrese el código a modificar (deje en blanco para cancelar): ").strip()
     if not codigo:
         print(Fore.YELLOW + "Modificación cancelada." + Fore.RESET)
         return
 
-    ubicacion = input('Nuevo servicio: ').strip()
-    descripcion = input('Nuevo email: ').strip()
-    unidad = input('Nueva contraseña: ').strip()
-    tipo = input('Nuevo usuario: ').strip()
-    familia = input('Nueva referencia: ').strip()
-    fecha = today 
-    # Llamar a la función que modifica los datos
+    # Obtener datos actuales del código
+    # dr = df.filter(pl.col("codigo") == codigo)
+   # Asegúrate de convertir a texto el código
+    dr = df.filter(pl.col("codigo").cast(pl.Utf8) == codigo)
+    if dr.is_empty():
+        print(Fore.RED + "Código no encontrado en el inventario." + Fore.RESET)
+        return
+
+    current_data = dr.row(0, named=True)
+
+
+    # Mostrar valores actuales y permitir dejar en blanco para conservarlos
+    print(Fore.CYAN + "\nDeje en blanco para mantener el valor actual:" + Fore.RESET)
+
+    ubicacion = input(f'Servicio [{current_data["service"]}]: ').strip() or current_data["service"]
+    descripcion = input(f'Email [{current_data["email"]}]: ').strip() or current_data["email"]
+    unidad = input(f'Contraseña [{current_data["password"]}]: ').strip() or current_data["password"]
+    tipo = input(f'Usuario [{current_data["username"]}]: ').strip() or current_data["username"]
+    familia = input(f'Ref [{current_data["web"]}]: ').strip() or current_data["web"]
+    fecha = today
+
+
     modificarBDD(codigo, ubicacion, descripcion, unidad, tipo, familia, fecha)
 
 
-def modificarBDD(codigo,ubicacion,descripcion,unidad,tipo,familia,fecha):
-    result=[]
-    with open('Inventario.csv')as File:
-        reader=csv.DictReader(File)
+def modificarBDD(codigo, ubicacion, descripcion, unidad, tipo, familia, fecha):
+    result = []
+
+
+    with open('Inventario.csv', newline='') as File:
+        reader = csv.DictReader(File)
         for row in reader:
-            #Compara el codigo hasta encontrar lugar vacio
-            if row['codigo']==codigo:
-                row['codigo']=codigo
-                row['service']=ubicacion
-                row['email']=descripcion
-                row['password']=unidad
-                row['username']=tipo
-                row['web']=familia
-                row['fecha']=fecha
-            
+            # Compara como string para evitar errores de tipo
+            if row['codigo'].strip() == str(codigo).strip():
+                row['service'] = ubicacion
+                row['email'] = descripcion
+                row['password'] = unidad
+                row['username'] = tipo
+                row['web'] = familia
+                row['fecha'] = fecha
             result.append(row)
-        
-    with open('Inventario.csv','w')as File:
-        fieldnames=['codigo','service','email','password','username','web','fecha']
-        writer=csv.DictWriter(File,fieldnames=fieldnames,extrasaction='ignore')
+
+    # Escribir el nuevo CSV
+    with open('Inventario.csv', 'w', newline='') as File:
+        fieldnames = ['codigo', 'service', 'email', 'password', 'username', 'web', 'fecha']
+        writer = csv.DictWriter(File, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(result)
-        actualizacion_sesion()
-        print(f"EL {ubicacion} CON {descripcion} SE AGREGÓ CORRECTAMENTE")
+        # print("Resultado final para guardar:")
+        # for r in result:
+        #     print(r)
+    
+    actualizacion_sesion()
+    print(Fore.GREEN + f"✅ Servicio '{ubicacion}' actualizado correctamente." + Fore.RESET)
 
 
 def ExisteCodigo(codigo):
