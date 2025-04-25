@@ -90,6 +90,7 @@ def validate():
             print("saliendo....")
             estado_salida()
             sys.exit(0)
+            
                     #error=="Generado"
             
 
